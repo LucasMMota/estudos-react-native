@@ -1,16 +1,22 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import RandomNumber from './RandomNumber';
-import { View, Text, StyleSheet } from 'react-native';
+import shuffle from 'lodash.shuffle';
+import { View, Text, StyleSheet, Button } from 'react-native';
 
 class Game extends Component {
     static propTypes = {
         randomNumberCount: PropTypes.number.isRequired,
+        initialSeconds: PropTypes.number.isRequired,
+        onPlayAgain: PropTypes.func.isRequired,
     }
 
     state = {
         selectedIds: [],
+        remainingSeconds: this.props.initialSeconds, // pega o initialSeconds passado
     }
+
+    gameStatus = 'PLAYING';
 
     randomNumbers = Array
         .from({ length: this.props.randomNumberCount })
@@ -21,7 +27,38 @@ class Game extends Component {
     target = this.randomNumbers
         .slice(0, this.props.randomNumberCount - 2)
         .reduce((acc, curr) => acc + curr, 0)
-    // TODO: shuffle random numbers
+    shuffledRandomNumbers = shuffle(this.randomNumbers);
+
+    //funcao chamada automaticamente pelo RN
+    componentDidMount() {
+        this.intervalId = setInterval(() => {
+            this.setState(
+                (prevState) => {
+                    return { remainingSeconds: prevState.remainingSeconds - 1 }; // a cada segundo diminui 1 do remainingSeconds
+                },
+                () => {
+                    // depois de decrementar verifica se chegou em 0s e remove o intervalo.
+                    if (this.state.remainingSeconds === 0) {
+                        clearInterval(this.intervalId);
+                    }
+                });
+        }, 1000);
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+        if (
+            nextState.selectedIds !== this.state.selectedIds || nextState.remainingSeconds === 0
+        ) {
+            this.gameStatus = this.calcGame(nextState);
+            if (this.gameStatus !== 'PLAYING') {
+                clearInterval(this.intervalId);
+            }
+        }
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.intervalId);
+    }
 
     isNumberSelected = (numberIndex) => {
         return this.state.selectedIds.indexOf(numberIndex) >= 0;
@@ -36,17 +73,19 @@ class Game extends Component {
     }
 
     // gameStatus: PALYING, WON, LOST
-    gameStatus = () => {
-        const sumSelected = this.state.selectedIds.reduce((acc, curr) => {
-            return acc + this.randomNumbers[curr];
+    calcGame = (nextState) => {
+        const sumSelected = nextState.selectedIds.reduce((acc, curr) => {
+            return acc + this.shuffledRandomNumbers[curr];
         }, 0);
-        // console.warn(sumSelected);
+
+
 
         if (sumSelected === this.target) {
             return 'WON';
         }
 
-        if (sumSelected > this.target) {
+        //se acabar o tempo ou a soma passar o valor target: perde
+        if (nextState.remainingSeconds === 0 || sumSelected > this.target) {
             return 'LOST';
         }
 
@@ -55,12 +94,12 @@ class Game extends Component {
     }
 
     render() {
-        const gameStatus = this.gameStatus();
+        const gameStatus = this.gameStatus;
         return (
             <View style={styles.container}>
                 <Text style={[styles.target, styles[`STATUS_${gameStatus}`]]}>{this.target}</Text>
                 <View style={styles.randomContainer}>
-                    {this.randomNumbers.map((randomNumber, index) =>
+                    {this.shuffledRandomNumbers.map((randomNumber, index) =>
                         <RandomNumber
                             key={index}
                             id={index}
@@ -70,7 +109,10 @@ class Game extends Component {
                         />
                     )}
                 </View>
-                <Text>{gameStatus}</Text>
+                {this.gameStatus !== 'PLAYING' && (
+                    <Button title={'Jogar novamente'} onPress={this.props.onPlayAgain} />
+                )}
+                <Text>Tempo restante: {this.state.remainingSeconds}</Text>
             </View>
         );
     }
@@ -109,3 +151,5 @@ const styles = StyleSheet.create({
 });
 
 export default Game;
+
+//TODOs make the game harder, add score
