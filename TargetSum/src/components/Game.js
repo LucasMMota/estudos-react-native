@@ -13,7 +13,7 @@ class Game extends Component {
 
     state = {
         selectedIds: [],
-        remainingSeconds: this.props.initialSeconds, // pega o initialSeconds passado
+        remainingSeconds: this.props.initialSeconds, // pega o initialSeconds passado na propriedade
     }
 
     gameStatus = 'PLAYING';
@@ -72,7 +72,7 @@ class Game extends Component {
         );
     }
 
-    // gameStatus: PALYING, WON, LOST
+    // gameStatus: PLAYING, WON, LOST
     calcGame = (nextState) => {
         const sumSelected = nextState.selectedIds.reduce((acc, curr) => {
             return acc + this.shuffledRandomNumbers[curr];
