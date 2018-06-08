@@ -1,25 +1,30 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { TouchableOpacity, View, Text, Image, StyleSheet, FlatList } from 'react-native';
-import { priceDisplay } from '../util'
+import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
 
-class DealItem extends Component {
+import { priceDisplay } from '../util';
+import ajax from '../ajax';
+
+class DealDetail extends Component {
     static propTypes = {
-        deal: PropTypes.object.isRequired,
-        onPress: PropTypes.func.isRequired
+        initialDealData: PropTypes.object.isRequired,
     };
 
-    handlePress = () => {
-        this.props.onPress(this.props.deal.key)
-    }
+    state = {
+        deal: this.props.initialDealData,
+    };
+
+    async componentDidMount() {
+        const fullDeal = await ajax.fetchDealsDetail(this.state.deal.key);
+        console.log(fullDeal);
+        this.setState({ deal: fullDeal })
+    };
 
     render() {
-        const { deal } = this.props;
+        const { deal } = this.state;
         return (
-            <TouchableOpacity
-                style={styles.deal}
-                onPress={this.handlePress}>
-                <Image source={{ uri: this.props.deal.media[0] }}
+            <View style={styles.deal}>
+                <Image source={{ uri: deal.media[0] }}
                     style={styles.image}
                 />
                 <View style={styles.info}>
@@ -29,11 +34,20 @@ class DealItem extends Component {
                         <Text style={styles.price}>{deal.cause.name}</Text>
                     </View>
                 </View>
-            </TouchableOpacity>
+                {deal.user && (
+                    <View>
+                        <Image source={{ uri: deal.user.avatar }} style={styles.avatar} />
+                        <Text>{deal.user.name}</Text>
+                    </View>
+                )}
+                <View>
+                    <Text>{deal.description}</Text>
+                </View>
+            </View>
         );
     }
 }
-
+// add remaining styles
 const styles = StyleSheet.create({
     deal: {
         marginHorizontal: 12,
@@ -65,7 +79,11 @@ const styles = StyleSheet.create({
     price: {
         flex: 1,
         textAlign: 'right'
+    },
+    avatar: {
+        width: 60,
+        height: 60,
     }
 })
 
-export default DealItem;
+export default DealDetail;
