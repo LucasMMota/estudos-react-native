@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 
 import { priceDisplay } from '../util';
 import ajax from '../ajax';
@@ -8,6 +8,7 @@ import ajax from '../ajax';
 class DealDetail extends Component {
     static propTypes = {
         initialDealData: PropTypes.object.isRequired,
+        onBack: PropTypes.func.isRequired,
     };
 
     state = {
@@ -24,24 +25,29 @@ class DealDetail extends Component {
         const { deal } = this.state;
         return (
             <View style={styles.deal}>
-                <Image source={{ uri: deal.media[0] }}
-                    style={styles.image}
-                />
-                <View style={styles.info}>
-                    <Text style={styles.title}>{deal.title}</Text>
-                    <View style={styles.footer}>
-                        <Text style={styles.cause}>{priceDisplay(deal.price)}</Text>
-                        <Text style={styles.price}>{deal.cause.name}</Text>
-                    </View>
-                </View>
-                {deal.user && (
+                <TouchableOpacity onPress={this.props.onBack}>
+                    <Text style={styles.backLink}>Back</Text>
+                </TouchableOpacity>
+                <Image source={{ uri: deal.media[0] }} style={styles.image} />
+                <View style={styles.detail}>
                     <View>
-                        <Image source={{ uri: deal.user.avatar }} style={styles.avatar} />
-                        <Text>{deal.user.name}</Text>
+                        <Text style={styles.title}>{deal.title}</Text>
                     </View>
-                )}
-                <View>
-                    <Text>{deal.description}</Text>
+                    <View style={styles.footer}>
+                        <View style={styles.info}>
+                            <Text style={styles.price}>{deal.cause.name}</Text>
+                            <Text style={styles.cause}>{priceDisplay(deal.price)}</Text>
+                        </View>
+                    </View>
+                    {deal.user && (
+                        <View style={styles.user}>
+                            <Image source={{ uri: deal.user.avatar }} style={styles.avatar} />
+                            <Text>{deal.user.name}</Text>
+                        </View>
+                    )}
+                    <View style={styles.description}>
+                        <Text>{deal.description}</Text>
+                    </View>
                 </View>
             </View>
         );
@@ -51,12 +57,27 @@ class DealDetail extends Component {
 const styles = StyleSheet.create({
     deal: {
         marginHorizontal: 12,
-        marginTop: 12,
+        marginTop: 50,
+    },
+    backLink: {
+        marginBottom: 5,
+        color: '#000',
+        borderRadius: 6,
+        borderWidth: 3,
+        backgroundColor: '#d6d7da',
+        borderColor: '#d6d7da',
+        width: 50,
+        justifyContent: 'center',
+        paddingLeft: 7
     },
     image: {
         width: '100%',
         height: 150,
         backgroundColor: '#ccc'
+    },
+    detail: {
+        borderColor: '#bbb',
+        borderWidth: 1,
     },
     info: {
         padding: 10,
@@ -67,11 +88,15 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 16,
+        padding: 10,
         fontWeight: 'bold',
-        marginBottom: 5,
+        backgroundColor: 'rgba(237,149,45,0.4)',
     },
     footer: {
         flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        marginTop: 15
     },
     cause: {
         flex: 2,
