@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, View, Text, StyleSheet } from 'react-native';
+import { Animated, View, Text, StyleSheet, Easing, Dimensions } from 'react-native';
 import ajax from '../ajax';
 import DealList from './DealList';
 import DealDetail from './DealDetail';
@@ -14,19 +14,28 @@ class App extends React.Component {
         currentDealId: null,
     };
 
-    animateTitle = (direction=1)=>{
-        Animated.spring(
+    animateTitle = (direction = 1) => {
+        const width = Dimensions.get('window').width - 150;
+
+        // animated text while loading
+        Animated.timing(
             this.titleXPos,
-            { toValue: direction*100 }
-        ).start(()=>{
-            this.animateTitle(-1*direction)
-        });
+            {
+                toValue: direction * width / 2,
+                duration: 1000,
+                easing: Easing.ease,
+            }).start(({ finished }) => { // recebe um objeto que chamei de finished
+                // se vier um objeto/sucesse na animacao anterior, chama novamente
+                if (finished) {
+                    this.animateTitle(-1 * direction)
+                }
+            });
     }
 
     async componentDidMount() {
         this.animateTitle();
-        // const deals = await ajax.fetchInitialDeals();
-        // this.setState({ deals });
+        const deals = await ajax.fetchInitialDeals();
+        this.setState({ deals });
     }
 
     searchDeals = async (searchTerm) => {
