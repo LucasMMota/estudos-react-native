@@ -94,7 +94,7 @@ class DealDetail extends Component {
     render() {
         const { deal } = this.state;
         return (
-            <ScrollView style={styles.deal}>
+            <View style={styles.deal}>
                 <TouchableOpacity onPress={this.props.onBack}>
                     <Text style={styles.backLink}>Back</Text>
                 </TouchableOpacity>
@@ -102,7 +102,7 @@ class DealDetail extends Component {
                     {...this.imagePanResponder.panHandlers}
                     source={{ uri: deal.media[this.state.imageIndex] }}
                     style={[styles.image, { left: this.imageXPos }]} />
-                <View style={styles.detail}>
+                <ScrollView style={styles.detail}>
                     <View>
                         <Text style={styles.title}>{deal.title}</Text>
                     </View>
@@ -122,8 +122,8 @@ class DealDetail extends Component {
                         <Text>{deal.description}</Text>
                     </View>
                     <Button title={"Buy this deal!"} onPress={this.openDealURL} />
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </View>
         );
     }
 }
