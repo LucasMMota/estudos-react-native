@@ -44,7 +44,7 @@ class App extends React.Component {
             dealsFormSearch = await ajax.fetchDealsSearchResult(searchTerm);
         }
 
-        this.setState({ dealsFormSearch })
+        this.setState({ dealsFormSearch , activeSearchTerm: searchTerm})
     }
 
     setCurrentDeal = (dealId) => {
@@ -76,7 +76,7 @@ class App extends React.Component {
         if (dealToDisplay.length > 0) {
             return (
                 <View style={styles.main}>
-                    <SearchBar searchDeals={this.searchDeals} />
+                    <SearchBar searchDeals={this.searchDeals} initialSearchTerm={this.state.activeSearchTerm}/>
                     <DealList deals={dealToDisplay} onItemPress={this.setCurrentDeal} />
                 </View>
             );

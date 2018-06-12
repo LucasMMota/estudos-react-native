@@ -8,10 +8,11 @@ class SearchBar extends Component {
 
     static propTypes = {
         searchDeals: PropTypes.func.isRequired,
+        initialSearchTerm: PropTypes.string.isRequired,
     };
 
     state = {
-        searchTerm: '',
+        searchTerm: this.props.searchTerm,
     };
 
     debounceSearchDeals = debounce(this.props.searchDeals, 300);
@@ -31,6 +32,7 @@ class SearchBar extends Component {
         return (
             <TextInput
                 ref={(inputElement) => { this.inputElement = inputElement }}
+                value={this.state.searchTerm}
                 placeholder={'Search All Deals'}
                 style={styles.input}
                 onChangeText={this.handleChange}
