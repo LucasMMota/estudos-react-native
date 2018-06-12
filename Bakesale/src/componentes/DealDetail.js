@@ -55,15 +55,10 @@ class DealDetail extends Component {
 }
 // add remaining styles
 const styles = StyleSheet.create({
-    deal: {
-        marginHorizontal: 12,
-        marginTop: 50,
-    },
     backLink: {
         marginBottom: 5,
         color: '#000',
-        borderRadius: 6,
-        borderWidth: 3,
+        marginLeft: 10,
         backgroundColor: '#d6d7da',
         borderColor: '#d6d7da',
         width: 50,
