@@ -22,9 +22,15 @@ class SearchBar extends Component {
         })
     }
 
+    searchDeals = (searchTerm) => {
+        this.props.searchDeals(searchTerm);
+        this.inputElement.blur()
+    }
+
     render() {
         return (
             <TextInput
+                ref={(inputElement) => { this.inputElement = inputElement }}
                 placeholder={'Search All Deals'}
                 style={styles.input}
                 onChangeText={this.handleChange}

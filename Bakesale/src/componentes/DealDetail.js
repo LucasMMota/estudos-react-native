@@ -1,6 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, Image, StyleSheet, TouchableOpacity, PanResponder, Animated, Dimensions } from 'react-native';
+import {
+    Button,
+    View,
+    ScrollView,
+    Text,
+    Image,
+    StyleSheet,
+    TouchableOpacity,
+    PanResponder,
+    Animated,
+    Dimensions,
+    Linking
+} from 'react-native';
 
 import { priceDisplay } from '../util';
 import ajax from '../ajax';
@@ -20,7 +32,7 @@ class DealDetail extends Component {
             // The user has released all touches while this view is the
             // responder. This typically means a gesture has succeeded
             this.width = Dimensions.get('window').width;
-            if (Math.abs(gestureState.dx) > this.width * 0.4) {
+            if (Math.abs(gestureState.dx) > this.width * 0.3) {
                 // get move direction
                 const direction = Math.sign(gestureState.dx);
 
@@ -75,10 +87,14 @@ class DealDetail extends Component {
         this.setState({ deal: fullDeal })
     };
 
+    openDealURL = () => {
+        Linking.openURL(this.state.deal.url)
+    }
+
     render() {
         const { deal } = this.state;
         return (
-            <View style={styles.deal}>
+            <ScrollView style={styles.deal}>
                 <TouchableOpacity onPress={this.props.onBack}>
                     <Text style={styles.backLink}>Back</Text>
                 </TouchableOpacity>
@@ -105,13 +121,17 @@ class DealDetail extends Component {
                     <View style={styles.description}>
                         <Text>{deal.description}</Text>
                     </View>
+                    <Button title={"Buy this deal!"} onPress={this.openDealURL} />
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }
 // add remaining styles
 const styles = StyleSheet.create({
+    deal:{
+        marginBottom: 20,
+    },
     backLink: {
         marginBottom: 5,
         color: '#22f',
