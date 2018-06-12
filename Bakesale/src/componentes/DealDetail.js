@@ -19,17 +19,45 @@ class DealDetail extends Component {
         onPanResponderRelease: (evt, gestureState) => {
             // The user has released all touches while this view is the
             // responder. This typically means a gesture has succeeded
-            const width = Dimensions.get('window').width;
-            if (Math.abs(gestureState.dx) > width * 0.4) {
+            this.width = Dimensions.get('window').width;
+            if (Math.abs(gestureState.dx) > this.width * 0.4) {
+                // get move direction
                 const direction = Math.sign(gestureState.dx);
-                
+
                 Animated.timing(this.imageXPos, {
-                    toValue: direction * width,
+                    toValue: direction * this.width,
                     duration: 250,
+                }).start(() => { this.handleSwipe(-1 * direction) });
+            } else {
+                Animated.spring(this.imageXPos, {
+                    toValue: 0,
                 }).start();
             }
         },
     })
+
+    handleSwipe = (indexDirection) => {
+        // ultima imagem da lista
+        if (!this.state.deal.media[this.state.imageIndex + indexDirection]) {
+            // volta a posicao da imagem para a pos inicial
+            Animated.spring(this.imageXPos, {
+                toValue: 0,
+            }).start();
+
+            return;
+        }
+
+        this.setState((prevState) => ({
+            //muda o index para a nova imagem
+            imageIndex: prevState.imageIndex + indexDirection
+        }), () => {
+            // Next Image Animation
+            this.imageXPos.setValue(indexDirection * this.width);
+            Animated.spring(this.imageXPos, {
+                toValue: 0,
+            }).start();
+        });
+    };
 
     static propTypes = {
         initialDealData: PropTypes.object.isRequired,
