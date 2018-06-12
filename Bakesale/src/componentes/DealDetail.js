@@ -1,11 +1,36 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, PanResponder, Animated, Dimensions } from 'react-native';
 
 import { priceDisplay } from '../util';
 import ajax from '../ajax';
 
 class DealDetail extends Component {
+    imageXPos = new Animated.Value(0);
+    imagePanResponder = PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onPanResponderMove: (evt, gestureState) => {
+            // The most recent move distance is gestureState.move{X,Y}
+
+            // The accumulated gesture distance since becoming responder is
+            // gestureState.d{x,y}
+            this.imageXPos.setValue(gestureState.dx);
+        },
+        onPanResponderRelease: (evt, gestureState) => {
+            // The user has released all touches while this view is the
+            // responder. This typically means a gesture has succeeded
+            const width = Dimensions.get('window').width;
+            if (Math.abs(gestureState.dx) > width * 0.4) {
+                const direction = Math.sign(gestureState.dx);
+                
+                Animated.timing(this.imageXPos, {
+                    toValue: direction * width,
+                    duration: 250,
+                }).start();
+            }
+        },
+    })
+
     static propTypes = {
         initialDealData: PropTypes.object.isRequired,
         onBack: PropTypes.func.isRequired,
@@ -13,6 +38,7 @@ class DealDetail extends Component {
 
     state = {
         deal: this.props.initialDealData,
+        imageIndex: 0,
     };
 
     async componentDidMount() {
@@ -28,7 +54,10 @@ class DealDetail extends Component {
                 <TouchableOpacity onPress={this.props.onBack}>
                     <Text style={styles.backLink}>Back</Text>
                 </TouchableOpacity>
-                <Image source={{ uri: deal.media[0] }} style={styles.image} />
+                <Animated.Image
+                    {...this.imagePanResponder.panHandlers}
+                    source={{ uri: deal.media[this.state.imageIndex] }}
+                    style={[styles.image, { left: this.imageXPos }]} />
                 <View style={styles.detail}>
                     <View>
                         <Text style={styles.title}>{deal.title}</Text>
@@ -57,13 +86,13 @@ class DealDetail extends Component {
 const styles = StyleSheet.create({
     backLink: {
         marginBottom: 5,
-        color: '#000',
+        color: '#22f',
         marginLeft: 10,
-        backgroundColor: '#d6d7da',
-        borderColor: '#d6d7da',
-        width: 50,
-        justifyContent: 'center',
-        paddingLeft: 7
+        // backgroundColor: '#d6d7da',
+        // borderColor: '#d6d7da',
+        // width: 50,
+        // justifyContent: 'center',
+        // paddingLeft: 7
     },
     image: {
         width: '100%',
